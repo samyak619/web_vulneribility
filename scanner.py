@@ -2,6 +2,8 @@ import re
 from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
+import gzip
+from io import BytesIO
 
 class Scanner:
     def __init__(self, url, ignore_links):
@@ -13,7 +15,15 @@ class Scanner:
     def extract_links_from(self, url):
         response = self.session.get(url)
         if response.status_code == 200:
-            page_content = response.content.decode("utf-8")
+            if 'Content-Encoding' in response.headers and response.headers['Content-Encoding'] == 'gzip':
+                # Decompress the gzip-compressed content
+                uncompressed_data = gzip.decompress(response.content)
+            # Decode the uncompressed content as UTF-8
+                page_content = uncompressed_data.decode("utf-8")
+            else:
+                # Content is not compressed
+                page_content = response.content.decode("utf-8")
+
             return re.findall('(?:href=")(.*?)"', page_content)
         else:
             print("Failed to retrieve page:", url)
