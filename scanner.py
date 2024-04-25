@@ -33,7 +33,7 @@ class Scanner:
                 self.crawl(link)
 
     def extract_forms(self, url):
-        response = self.session.get(url)
+        response = self.session.get(url,verify=False)
         parsed_html = BeautifulSoup(response.content, "html.parser")
         return parsed_html.find_all("form")
 
