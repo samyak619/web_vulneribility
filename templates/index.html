@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Vulnerability Scanner</title>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 10px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Vulnerability Scanner</h1>
+    <form id="scannerForm">
+        <label for="targetUrl">Target URL:</label>
+        <input type="text" id="targetUrl" name="targetUrl" required>
+        <br><br>
+        <label for="ignoreLinks">Ignore Links (comma-separated):</label>
+        <input type="text" id="ignoreLinks" name="ignoreLinks">
+        <br><br>
+        <button type="submit">Scan</button>
+    </form>
+    <pre id="output"></pre>
+
+    <script>
+        // JavaScript script
+        const form = document.getElementById('scannerForm');
+        const outputElement = document.getElementById('output');
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent form submission
+
+            const targetUrl = document.getElementById('targetUrl').value;
+            const ignoreLinks = document.getElementById('ignoreLinks').value.split(',');
+
+            // Call the Python function here
+            runVulnerabilityScanner(targetUrl, ignoreLinks)
+                .then(output => {
+                    outputElement.textContent = output;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    outputElement.textContent = 'An error occurred while running the vulnerability scanner.';
+                });
+        });
+
+        async function runVulnerabilityScanner(targetUrl, ignoreLinks) {
+            const response = await fetch('/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ targetUrl, ignoreLinks })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error ${response.status}`);
+            }
+
+            const output = await response.text();
+            return output;
+        }
+    </script>
+</body>
+
+</html>
